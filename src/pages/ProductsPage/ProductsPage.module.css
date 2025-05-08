@@ -1,0 +1,78 @@
+.container {
+  margin-bottom: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.categorySelect {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  min-width: 150px;
+}
+
+.sortSelect {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pageButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 1px solid #ced4da;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageButton:hover {
+  background-color: #e9ecef;
+}
+
+.activePage {
+  background-color: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+.activePage:hover {
+  background-color: #0055aa;
+} 

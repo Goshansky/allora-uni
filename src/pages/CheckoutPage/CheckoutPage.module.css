@@ -1,0 +1,338 @@
+.container {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+}
+
+.steps {
+  display: flex;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.step {
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: #666;
+  position: relative;
+}
+
+.activeStep {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.activeStep:after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #0066cc;
+}
+
+.completedStep {
+  color: #2c7a7b;
+}
+
+.checkout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+}
+
+.checkoutForm {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.deliveryOptions, .paymentOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option:hover {
+  border-color: #0066cc;
+}
+
+.selectedOption {
+  border-color: #0066cc;
+  background-color: #f0f7ff;
+}
+
+.option input {
+  margin-right: 1rem;
+}
+
+.optionContent {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.optionTitle {
+  font-weight: 500;
+}
+
+.optionPrice, .optionDescription {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.addressFields {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pickupInfo {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.pickupAddress {
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.commentField {
+  margin-bottom: 2rem;
+}
+
+.commentLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.comment {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.comment:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.orderSummaryCard {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  align-self: flex-start;
+  position: sticky;
+  top: 1rem;
+}
+
+.summaryTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.summaryItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.summaryTotals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.summaryTotal {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #0066cc;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #ddd;
+}
+
+/* Confirmation page styles */
+.orderSummary, .deliverySummary {
+  margin-bottom: 2rem;
+}
+
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.itemName {
+  font-weight: 500;
+}
+
+.itemQuantity {
+  font-weight: normal;
+  color: #666;
+  margin-left: 0.5rem;
+}
+
+.itemTotal {
+  font-weight: 500;
+}
+
+.orderTotals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.grandTotal {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0066cc;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #ddd;
+}
+
+.summaryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.infoLabel {
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.infoValue {
+  color: #333;
+}
+
+@media (max-width: 992px) {
+  .checkout {
+    grid-template-columns: 1fr;
+  }
+  
+  .orderSummaryCard {
+    position: static;
+    order: -1;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  
+  .formActions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .formActions button {
+    width: 100%;
+  }
+} 
