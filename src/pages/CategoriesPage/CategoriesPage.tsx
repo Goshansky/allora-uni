@@ -16,7 +16,7 @@ export const CategoriesPage = () => {
           >
             <div className={styles.imageContainer}>
               <img 
-                src={category.image_url || 'https://via.placeholder.com/400x300?text=Категория'} 
+                src={category.image_url} 
                 alt={category.name} 
                 className={styles.image}
               />
