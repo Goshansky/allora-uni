@@ -8,7 +8,7 @@ import { useState } from 'react';
 interface ProductCardProps {
   product: Product;
   isFavorite?: boolean;
-  onToggleFavorite?: (productId: number) => void;
+  onToggleFavorite?: (productId: string) => void;
 }
 
 export const ProductCard = ({ 
@@ -49,14 +49,15 @@ export const ProductCard = ({
       <div className={styles.imageContainer}>
         <img 
           src={product.image_url || 'https://via.placeholder.com/300x300?text=No+Image'} 
-          alt={product.name} 
+          alt={product.title} 
           className={styles.image} 
         />
-        <span className={styles.category}>{product.category.name}</span>
+        {/* Категория не содержится в объекте продукта, поэтому временно скрываем */}
+        {/* <span className={styles.category}>{product.category.name}</span> */}
       </div>
       
       <div className={styles.content}>
-        <h3 className={styles.name}>{product.name}</h3>
+        <h3 className={styles.name}>{product.title}</h3>
         <p className={styles.description}>{product.description}</p>
         <div className={styles.price}>
           {product.price.toLocaleString()} ₽

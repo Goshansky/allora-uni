@@ -29,25 +29,17 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
     
-    // If error is 401 and we haven't retried yet, try to refresh token
+    // If error is 401 and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
       try {
-        // Call your token refresh endpoint
-        const refreshToken = localStorage.getItem('refreshToken');
-        const response = await axios.post(`${API_URL}/token/refresh`, { refresh_token: refreshToken });
-        
-        // Save new tokens
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('refreshToken', response.data.refresh_token);
-        
-        // Update header and retry request
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
-        }
-        
-        return api(originalRequest);
+        // По спецификации API нет эндпоинта для обновления токена
+        // Поэтому просто перенаправляем на страницу логина
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(error);
       } catch (refreshError) {
         // If refresh fails, logout user
         localStorage.removeItem('token');

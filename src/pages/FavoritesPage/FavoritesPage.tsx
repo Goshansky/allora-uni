@@ -1,66 +1,90 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProductGrid } from '../../components/products/ProductGrid';
 import { Button } from '../../components/common/Button';
-import { mockFavorites } from '../../data/mockData';
+import { productService } from '../../services/productService';
+import type { Product, FavoriteWithProduct } from '../../types/models';
 import styles from './FavoritesPage.module.css';
 
 export const FavoritesPage = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const [processingIds, setProcessingIds] = useState<number[]>([]);
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const [favorites, setFavorites] = useState<FavoriteWithProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [processingIds, setProcessingIds] = useState<string[]>([]);
   
-  // If not authenticated, redirect to login
+  // Если не авторизован, перенаправляем на страницу входа
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
   
-  if (isLoading || !user) {
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const response = await productService.getFavorites();
+        setFavorites(response.favorites);
+      } catch (err) {
+        console.error('Ошибка при загрузке избранного:', err);
+        setError('Не удалось загрузить избранные товары. Пожалуйста, попробуйте позже.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchFavorites();
+  }, [user]);
+  
+  if (isAuthLoading || !user) {
+    return <div className={styles.loading}>Загрузка данных пользователя...</div>;
+  }
+  
+  if (isLoading) {
     return <div className={styles.loading}>Загрузка избранного...</div>;
   }
   
-  // Get user's favorites from mock data
-  const userFavorites = mockFavorites.filter(fav => fav.user_id === user.id);
-  const favoriteProducts = userFavorites.map(fav => fav.product);
+  if (error) {
+    return <div className={styles.error}>{error}</div>;
+  }
   
-  const handleToggleFavorite = async (productId: number) => {
+  // Получаем только товары из избранного
+  const favoriteProducts = favorites.map(fav => fav.product);
+  
+  const handleToggleFavorite = async (productId: string) => {
     if (processingIds.includes(productId)) return;
     
     setProcessingIds(prev => [...prev, productId]);
     
-    // Simulate API call to remove from favorites
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // In a real application, we would call an API to remove from favorites
-    console.log(`Removing product ${productId} from favorites`);
-    
-    setProcessingIds(prev => prev.filter(id => id !== productId));
+    try {
+      await productService.removeFromFavorites(productId);
+      setFavorites(prev => prev.filter(fav => fav.product_id !== productId));
+    } catch (err) {
+      console.error('Ошибка при удалении из избранного:', err);
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== productId));
+    }
   };
   
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Избранные товары</h1>
       
-      {favoriteProducts.length > 0 ? (
-        <>
-          <div className={styles.description}>
-            Здесь хранятся товары, которые вы добавили в избранное. Вы можете добавить товар в корзину или удалить его из избранного.
-          </div>
-          
-          <ProductGrid 
-            products={favoriteProducts}
-            favorites={userFavorites}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        </>
+      {favorites.length > 0 ? (
+        <ProductGrid 
+          products={favoriteProducts} 
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
+        />
       ) : (
-        <div className={styles.emptyState}>
-          <h2 className={styles.emptyTitle}>У вас пока нет избранных товаров</h2>
-          <p className={styles.emptyDescription}>
-            Добавляйте понравившиеся товары в избранное, чтобы не потерять их из виду.
-          </p>
+        <div className={styles.noFavorites}>
+          <p>У вас пока нет избранных товаров</p>
           <Button 
-            variant="primary"
+            variant="primary" 
             onClick={() => window.location.href = '/products'}
           >
             Перейти к каталогу

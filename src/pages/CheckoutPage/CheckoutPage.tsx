@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { mockCart } from '../../data/mockData';
+import { cartService } from '../../services/cartService';
 import styles from './CheckoutPage.module.css';
 
 interface DeliveryFormData {
@@ -26,6 +26,7 @@ export const CheckoutPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
   const [deliveryType, setDeliveryType] = useState<'courier' | 'pickup'>('courier');
+  const [orderError, setOrderError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<DeliveryFormData>({
     fullName: user?.username || '',
@@ -48,11 +49,8 @@ export const CheckoutPage = () => {
     return <div className={styles.loading}>Загрузка данных...</div>;
   }
   
-  // Use cart from context or mock data
-  const cartData = cart || mockCart;
-  
   // If cart is empty, redirect to cart page
-  if (!cartData || cartData.items.length === 0) {
+  if (!cart || cart.items.length === 0) {
     return <Navigate to="/cart" />;
   }
   
@@ -116,18 +114,20 @@ export const CheckoutPage = () => {
   
   const handleSubmitOrder = async () => {
     setIsProcessing(true);
+    setOrderError(null);
     
     try {
-      // Simulate API call to create order
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Вызываем API для создания заказа
+      await cartService.createOrder();
       
-      // Clear cart
+      // Очищаем корзину после успешного оформления заказа
       await clearCart();
       
-      // Redirect to success page or orders page
+      // Перенаправляем на страницу заказов
       navigate('/orders');
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Ошибка при оформлении заказа:', error);
+      setOrderError('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.');
       setIsProcessing(false);
     }
   };
@@ -136,7 +136,7 @@ export const CheckoutPage = () => {
   const deliveryCost = deliveryType === 'courier' ? 300 : 0;
   
   // Calculate total
-  const totalCost = cartData.total + deliveryCost;
+  const totalCost = cart.total_price + deliveryCost;
   
   return (
     <div className={styles.container}>
@@ -252,35 +252,20 @@ export const CheckoutPage = () => {
                 </div>
               )}
               
-              {deliveryType === 'pickup' && (
-                <div className={styles.pickupInfo}>
-                  <p>Вы можете забрать заказ по адресу:</p>
-                  <p className={styles.pickupAddress}>г. Москва, ул. Примерная, д. 123</p>
-                  <p>Режим работы: Пн-Пт с 10:00 до 20:00, Сб-Вс с 11:00 до 18:00</p>
-                </div>
-              )}
-              
-              <div className={styles.commentField}>
-                <label className={styles.commentLabel}>
-                  Комментарий к заказу:
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  Комментарий к заказу
                   <textarea
                     name="comment"
                     value={formData.comment}
                     onChange={handleChange}
-                    className={styles.comment}
-                    rows={3}
+                    className={styles.textarea}
+                    placeholder="Дополнительная информация по заказу"
                   />
                 </label>
               </div>
               
               <div className={styles.formActions}>
-                <Button 
-                  variant="secondary" 
-                  onClick={() => navigate('/cart')}
-                >
-                  Вернуться в корзину
-                </Button>
-                
                 <Button 
                   variant="primary" 
                   onClick={handleNextStep}
@@ -291,95 +276,56 @@ export const CheckoutPage = () => {
             </div>
           ) : (
             <div className={styles.confirmationForm}>
-              <h2 className={styles.sectionTitle}>Подтверждение заказа</h2>
+              <h2 className={styles.sectionTitle}>Данные доставки</h2>
               
-              <div className={styles.orderSummary}>
-                <h3 className={styles.summaryTitle}>Ваш заказ</h3>
+              <div className={styles.confirmationDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>ФИО:</span>
+                  <span className={styles.detailValue}>{formData.fullName}</span>
+                </div>
                 
-                <div className={styles.orderItems}>
-                  {cartData.items.map(item => (
-                    <div key={item.id} className={styles.orderItem}>
-                      <div className={styles.itemName}>
-                        {item.product.name}
-                        <span className={styles.itemQuantity}>× {item.quantity}</span>
-                      </div>
-                      <div className={styles.itemTotal}>
-                        {(item.product.price * item.quantity).toLocaleString()} ₽
-                      </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Телефон:</span>
+                  <span className={styles.detailValue}>{formData.phone}</span>
+                </div>
+                
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Email:</span>
+                  <span className={styles.detailValue}>{formData.email}</span>
+                </div>
+                
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Способ доставки:</span>
+                  <span className={styles.detailValue}>
+                    {deliveryType === 'courier' ? 'Курьером' : 'Самовывоз'}
+                  </span>
+                </div>
+                
+                {deliveryType === 'courier' && (
+                  <>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Адрес:</span>
+                      <span className={styles.detailValue}>{formData.address}</span>
                     </div>
-                  ))}
-                </div>
-                
-                <div className={styles.orderTotals}>
-                  <div className={styles.totalRow}>
-                    <span>Сумма заказа:</span>
-                    <span>{cartData.total.toLocaleString()} ₽</span>
-                  </div>
-                  
-                  <div className={styles.totalRow}>
-                    <span>Доставка:</span>
-                    <span>{deliveryType === 'courier' ? '300 ₽' : 'Бесплатно'}</span>
-                  </div>
-                  
-                  <div className={`${styles.totalRow} ${styles.grandTotal}`}>
-                    <span>Итого к оплате:</span>
-                    <span>{totalCost.toLocaleString()} ₽</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className={styles.deliverySummary}>
-                <h3 className={styles.summaryTitle}>Данные доставки</h3>
-                
-                <div className={styles.summaryInfo}>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>ФИО:</span>
-                    <span className={styles.infoValue}>{formData.fullName}</span>
-                  </div>
-                  
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Телефон:</span>
-                    <span className={styles.infoValue}>{formData.phone}</span>
-                  </div>
-                  
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Email:</span>
-                    <span className={styles.infoValue}>{formData.email}</span>
-                  </div>
-                  
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Способ доставки:</span>
-                    <span className={styles.infoValue}>
-                      {deliveryType === 'courier' ? 'Курьером' : 'Самовывоз'}
-                    </span>
-                  </div>
-                  
-                  {deliveryType === 'courier' && (
-                    <>
-                      <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Адрес:</span>
-                        <span className={styles.infoValue}>{formData.address}</span>
-                      </div>
-                      
-                      <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Город:</span>
-                        <span className={styles.infoValue}>{formData.city}</span>
-                      </div>
-                      
-                      <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Индекс:</span>
-                        <span className={styles.infoValue}>{formData.postalCode}</span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {formData.comment && (
-                    <div className={styles.infoRow}>
-                      <span className={styles.infoLabel}>Комментарий:</span>
-                      <span className={styles.infoValue}>{formData.comment}</span>
+                    
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Город:</span>
+                      <span className={styles.detailValue}>{formData.city}</span>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Индекс:</span>
+                      <span className={styles.detailValue}>{formData.postalCode}</span>
+                    </div>
+                  </>
+                )}
+                
+                {formData.comment && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Комментарий:</span>
+                    <span className={styles.detailValue}>{formData.comment}</span>
+                  </div>
+                )}
               </div>
               
               <h2 className={styles.sectionTitle}>Способ оплаты</h2>
@@ -394,8 +340,7 @@ export const CheckoutPage = () => {
                     onChange={() => setPaymentMethod('card')}
                   />
                   <div className={styles.optionContent}>
-                    <span className={styles.optionTitle}>Банковской картой</span>
-                    <span className={styles.optionDescription}>Visa, MasterCard, МИР</span>
+                    <span className={styles.optionTitle}>Банковской картой онлайн</span>
                   </div>
                 </label>
                 
@@ -409,10 +354,15 @@ export const CheckoutPage = () => {
                   />
                   <div className={styles.optionContent}>
                     <span className={styles.optionTitle}>Наличными при получении</span>
-                    <span className={styles.optionDescription}>Оплата курьеру или в пункте выдачи</span>
                   </div>
                 </label>
               </div>
+              
+              {orderError && (
+                <div className={styles.errorMessage}>
+                  {orderError}
+                </div>
+              )}
               
               <div className={styles.formActions}>
                 <Button 
@@ -434,34 +384,45 @@ export const CheckoutPage = () => {
           )}
         </div>
         
-        <div className={styles.orderSummaryCard}>
+        <div className={styles.orderSummary}>
           <h2 className={styles.summaryTitle}>Ваш заказ</h2>
           
-          <div className={styles.summaryContent}>
-            <div className={styles.summaryItems}>
-              {cartData.items.map(item => (
-                <div key={item.id} className={styles.summaryItem}>
-                  <span>{item.product.name} × {item.quantity}</span>
-                  <span>{(item.product.price * item.quantity).toLocaleString()} ₽</span>
+          <div className={styles.orderItems}>
+            {cart.items.map(item => (
+              <div key={item.id} className={styles.orderItem}>
+                <div className={styles.itemImage}>
+                  <img 
+                    src={item.product.image_url || 'https://via.placeholder.com/50x50?text=No+Image'} 
+                    alt={item.product.title} 
+                  />
                 </div>
-              ))}
+                
+                <div className={styles.itemDetails}>
+                  <div className={styles.itemName}>{item.product.title}</div>
+                  <div className={styles.itemQuantity}>{item.quantity} шт.</div>
+                </div>
+                
+                <div className={styles.itemPrice}>
+                  {(item.product.price * item.quantity).toLocaleString()} ₽
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className={styles.summaryDetails}>
+            <div className={styles.summaryRow}>
+              <span>Товары ({cart.items.reduce((sum, item) => sum + item.quantity, 0)} шт.)</span>
+              <span>{cart.total_price.toLocaleString()} ₽</span>
             </div>
             
-            <div className={styles.summaryTotals}>
-              <div className={styles.summaryRow}>
-                <span>Товары ({cartData.items.reduce((sum, item) => sum + item.quantity, 0)} шт.):</span>
-                <span>{cartData.total.toLocaleString()} ₽</span>
-              </div>
-              
-              <div className={styles.summaryRow}>
-                <span>Доставка:</span>
-                <span>{deliveryType === 'courier' ? '300 ₽' : 'Бесплатно'}</span>
-              </div>
-              
-              <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                <span>Итого:</span>
-                <span>{totalCost.toLocaleString()} ₽</span>
-              </div>
+            <div className={styles.summaryRow}>
+              <span>Доставка</span>
+              <span>{deliveryCost > 0 ? `${deliveryCost} ₽` : 'Бесплатно'}</span>
+            </div>
+            
+            <div className={styles.summaryTotal}>
+              <span>Итого:</span>
+              <span>{totalCost.toLocaleString()} ₽</span>
             </div>
           </div>
         </div>

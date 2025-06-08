@@ -1,6 +1,6 @@
 // User related types
 export interface User {
-  id: number;
+  id: string;
   email: string;
   username: string;
   is_active: boolean;
@@ -15,8 +15,14 @@ export interface UserCreate {
 }
 
 export interface UserLogin {
-  username: string;
+  email: string;
   password: string;
+}
+
+export interface UserUpdate {
+  email?: string;
+  username?: string;
+  password?: string;
 }
 
 export interface AuthTokens {
@@ -27,120 +33,140 @@ export interface AuthTokens {
 
 // Product related types
 export interface Product {
-  id: number;
-  name: string;
+  id: string;
+  title: string;
   description: string;
   price: number;
   image_url?: string;
   stock: number;
-  category_id: number;
-  category: Category;
+  category_id: string;
   created_at: string;
-  updated_at: string;
 }
 
 export interface ProductCreate {
-  name: string;
+  title: string;
   description: string;
   price: number;
   image_url?: string;
   stock: number;
-  category_id: number;
+  category_id: string;
+}
+
+export interface ProductUpdate {
+  title?: string;
+  description?: string;
+  price?: number;
+  image_url?: string;
+  stock?: number;
+  category_id?: string;
 }
 
 // Category related types
 export interface Category {
-  id: number;
+  id: string;
   name: string;
-  description?: string;
-  image_url?: string;
-  created_at: string;
+  parent_id?: string;
 }
 
 export interface CategoryCreate {
   name: string;
-  description?: string;
-  image_url?: string;
+  parent_id?: string;
+}
+
+export interface CategoryUpdate {
+  name?: string;
+  parent_id?: string;
+}
+
+export interface CategoryWithProductsCount extends Category {
+  products_count: number;
 }
 
 // Cart related types
 export interface CartItem {
-  id: number;
-  product_id: number;
+  id: string;
+  product_id: string;
   product: Product;
   quantity: number;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
+  user_id: string;
 }
 
 export interface CartItemCreate {
-  product_id: number;
+  product_id: string;
+  quantity: number;
+}
+
+export interface CartItemUpdate {
   quantity: number;
 }
 
 export interface Cart {
   items: CartItem[];
-  total: number;
+  total_price: number;
 }
 
 // Order related types
 export enum OrderStatus {
   PENDING = 'pending',
-  PROCESSING = 'processing',
-  SHIPPING = 'shipping',
-  DELIVERED = 'delivered',
+  PAID = 'paid',
+  SHIPPED = 'shipped',
+  COMPLETED = 'completed',
   CANCELLED = 'cancelled'
 }
 
 export interface OrderItem {
-  id: number;
-  product_id: number;
+  id: string;
+  product_id: string;
   product: Product;
   quantity: number;
-  price: number;
-  order_id: number;
+  unit_price: number;
 }
 
 export interface Order {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   status: OrderStatus;
-  total: number;
-  items: OrderItem[];
+  total_price: number;
   created_at: string;
-  updated_at: string;
+  items?: OrderItem[];
 }
 
-export interface OrderCreate {
-  items: CartItemCreate[];
-  shipping_address: string;
+export interface OrderUpdate {
+  status: OrderStatus;
 }
 
 // Review related types
 export interface Review {
-  id: number;
-  product_id: number;
-  user_id: number;
-  user: User;
+  id: string;
+  product_id: string;
+  user_id: string;
   rating: number;
   comment: string;
   created_at: string;
 }
 
+export interface ReviewWithUser extends Review {
+  username: string;
+}
+
 export interface ReviewCreate {
-  product_id: number;
   rating: number;
   comment: string;
 }
 
 // Favorite related types
 export interface Favorite {
-  id: number;
-  product_id: number;
+  id: string;
+  product_id: string;
+  user_id: string;
+}
+
+export interface FavoriteWithProduct extends Favorite {
   product: Product;
-  user_id: number;
-  created_at: string;
+}
+
+export interface FavoritesList {
+  favorites: FavoriteWithProduct[];
 }
 
 // API response types

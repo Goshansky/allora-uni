@@ -5,7 +5,7 @@ import type { Product, Favorite } from '../../types/models';
 interface ProductGridProps {
   products: Product[];
   favorites?: Favorite[];
-  onToggleFavorite?: (productId: number) => void;
+  onToggleFavorite?: (productId: string) => void;
 }
 
 export const ProductGrid = ({

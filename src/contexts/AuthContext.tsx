@@ -6,7 +6,7 @@ import type { User, UserLogin, UserCreate } from '../types/models';
 // For development - auto login with a test user
 const AUTO_LOGIN = false;
 const TEST_USER = {
-  username: 'user',
+  email: 'user@example.com',
   password: 'password'
 };
 
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userData = await authService.getCurrentUser();
       setUser(userData);
     } catch (err) {
-      setError('Invalid username or password');
+      setError('Неверный email или пароль');
       throw err;
     } finally {
       setIsLoading(false);
@@ -77,13 +77,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     setError(null);
     try {
+      // Просто регистрируем пользователя без автоматического входа
       await authService.register(userData);
-      await login({ 
-        username: userData.username, 
-        password: userData.password 
-      });
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError('Не удалось зарегистрироваться. Попробуйте еще раз.');
       throw err;
     } finally {
       setIsLoading(false);
@@ -102,7 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const updatedUser = await authService.updateProfile(userData);
       setUser(updatedUser);
     } catch (err) {
-      setError('Failed to update profile');
+      setError('Не удалось обновить профиль');
       throw err;
     } finally {
       setIsLoading(false);

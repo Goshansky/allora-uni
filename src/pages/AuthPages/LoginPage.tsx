@@ -10,7 +10,7 @@ export const LoginPage = () => {
   const { login, isLoading } = useAuth();
   
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   
@@ -35,8 +35,10 @@ export const LoginPage = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.username.trim()) {
-      newErrors.username = 'Имя пользователя обязательно';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email обязателен';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Некорректный формат email';
     }
     
     if (!formData.password) {
@@ -60,7 +62,7 @@ export const LoginPage = () => {
       await login(formData);
       navigate('/');
     } catch (error) {
-      setSubmitError('Неверное имя пользователя или пароль');
+      setSubmitError('Неверный email или пароль');
     }
   };
 
@@ -75,12 +77,12 @@ export const LoginPage = () => {
         
         <form onSubmit={handleSubmit} className={styles.form}>
           <Input
-            label="Имя пользователя"
-            type="text"
-            name="username"
-            value={formData.username}
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
-            error={errors.username}
+            error={errors.email}
             required
           />
           

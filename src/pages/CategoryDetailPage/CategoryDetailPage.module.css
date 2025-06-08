@@ -1,19 +1,14 @@
 .container {
-  margin-bottom: 2rem;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 3rem;
-  color: #666;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .navigation {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
 }
 
 .navigation a {
@@ -26,41 +21,158 @@
 }
 
 .navigationSeparator {
-  color: #aaa;
+  margin: 0 8px;
+  color: #999;
 }
 
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.categoryImage {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.categoryImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .title {
   font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  color: #333;
+  margin-bottom: 10px;
 }
 
-.description {
-  color: #666;
-  line-height: 1.6;
-  max-width: 800px;
+.loading, .error {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+.backButton {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #0052a3;
+}
+
+.content {
+  margin-top: 30px;
 }
 
 .noProducts {
   text-align: center;
-  padding: 3rem;
-  background-color: #f8f9fa;
+  padding: 50px 0;
+  background-color: #f9f9f9;
   border-radius: 8px;
-  color: #666;
 }
 
 .link {
   display: inline-block;
-  margin-top: 1rem;
-  color: #0066cc;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #0066cc;
+  color: white;
   text-decoration: none;
-  font-weight: 500;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 .link:hover {
-  text-decoration: underline;
+  background-color: #0052a3;
+}
+
+/* Стили для подкатегорий */
+.subcategories {
+  margin-bottom: 30px;
+}
+
+.subcategoriesTitle {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.subcategoriesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.subcategoryCard {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.subcategoryCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.subcategoryImageContainer {
+  height: 150px;
+  overflow: hidden;
+}
+
+.subcategoryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.subcategoryCard:hover .subcategoryImage {
+  transform: scale(1.05);
+}
+
+.subcategoryInfo {
+  padding: 15px;
+}
+
+.subcategoryInfo h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #0066cc;
+}
+
+.productCount {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.productsTitle {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #333;
 } 

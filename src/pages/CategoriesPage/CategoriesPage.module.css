@@ -1,40 +1,40 @@
 .container {
-  margin-bottom: 2rem;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .title {
+  margin-bottom: 30px;
   font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
 }
 
 .categoriesGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
 }
 
 .categoryCard {
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
+  display: block;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background-color: white;
-  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  background-color: #fff;
 }
 
 .categoryCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .imageContainer {
-  position: relative;
-  height: 200px;
+  height: 180px;
   overflow: hidden;
 }
 
@@ -50,22 +50,61 @@
 }
 
 .content {
-  padding: 1.5rem;
-  flex-grow: 1;
+  padding: 15px;
+}
+
+.categoryName {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #0066cc;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+/* Стили для группы категорий */
+.categoryGroup {
   display: flex;
   flex-direction: column;
 }
 
-.categoryName {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: #333;
+/* Стили для подкатегорий */
+.subcategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 0 10px;
 }
 
-.description {
-  color: #666;
-  line-height: 1.5;
+.subcategoryLink {
+  display: inline-block;
+  padding: 5px 12px;
+  background-color: #f0f0f0;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.subcategoryLink:hover {
+  background-color: #e0e0e0;
+  color: #0066cc;
 }
 
 @media (max-width: 992px) {

@@ -2,15 +2,15 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { cartService } from '../services/cartService';
 import { useAuth } from './AuthContext';
-import type { Cart, CartItemCreate } from '../types/models';
+import type { Cart, CartItemCreate, CartItemUpdate } from '../types/models';
 
 interface CartContextType {
   cart: Cart | null;
   isLoading: boolean;
   error: string | null;
   addToCart: (item: CartItemCreate) => Promise<void>;
-  removeFromCart: (productId: number) => Promise<void>;
-  updateCartItem: (item: CartItemCreate) => Promise<void>;
+  removeFromCart: (productId: string) => Promise<void>;
+  updateCartItem: (productId: string, update: CartItemUpdate) => Promise<void>;
   clearCart: () => Promise<void>;
 }
 
@@ -35,7 +35,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       setCart(cartData);
     } catch (err) {
       console.error('Failed to fetch cart:', err);
-      setError('Failed to load your cart. Please try again.');
+      setError('Не удалось загрузить корзину. Пожалуйста, попробуйте еще раз.');
     } finally {
       setIsLoading(false);
     }
@@ -57,35 +57,35 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const updatedCart = await cartService.addToCart(item);
       setCart(updatedCart);
     } catch (err) {
-      setError('Failed to add item to cart');
+      setError('Не удалось добавить товар в корзину');
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const removeFromCart = async (productId: number) => {
+  const removeFromCart = async (productId: string) => {
     setIsLoading(true);
     setError(null);
     try {
       const updatedCart = await cartService.removeFromCart(productId);
       setCart(updatedCart);
     } catch (err) {
-      setError('Failed to remove item from cart');
+      setError('Не удалось удалить товар из корзины');
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateCartItem = async (item: CartItemCreate) => {
+  const updateCartItem = async (productId: string, update: CartItemUpdate) => {
     setIsLoading(true);
     setError(null);
     try {
-      const updatedCart = await cartService.updateCartItem(item);
+      const updatedCart = await cartService.updateCartItem(productId, update);
       setCart(updatedCart);
     } catch (err) {
-      setError('Failed to update cart item');
+      setError('Не удалось обновить товар в корзине');
       throw err;
     } finally {
       setIsLoading(false);
@@ -99,7 +99,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const emptyCart = await cartService.clearCart();
       setCart(emptyCart);
     } catch (err) {
-      setError('Failed to clear cart');
+      setError('Не удалось очистить корзину');
       throw err;
     } finally {
       setIsLoading(false);

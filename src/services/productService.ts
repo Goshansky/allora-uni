@@ -1,11 +1,16 @@
 import { apiService } from './api';
 import type { 
   Product, 
-  Category, 
-  PaginatedResponse, 
-  Review,
+  Category,
+  CategoryWithProductsCount,
+  CategoryCreate,
+  CategoryUpdate,
+  ProductCreate,
+  ProductUpdate,
+  ReviewWithUser,
   ReviewCreate,
-  Favorite
+  FavoriteWithProduct,
+  FavoritesList
 } from '../types/models';
 
 export const productService = {
@@ -13,13 +18,12 @@ export const productService = {
    * Get all products with pagination
    */
   getProducts: async (
-    page: number = 1, 
-    limit: number = 10, 
-    categoryId?: number,
-    search?: string
-  ): Promise<PaginatedResponse<Product>> => {
+    skip: number = 0, 
+    limit: number = 100, 
+    categoryId?: string
+  ): Promise<Product[]> => {
     const params: Record<string, string | number> = { 
-      page, 
+      skip, 
       limit 
     };
     
@@ -27,87 +31,129 @@ export const productService = {
       params.category_id = categoryId;
     }
     
-    if (search) {
-      params.search = search;
-    }
-    
-    return apiService.get<PaginatedResponse<Product>>('/products', { params });
+    return apiService.get<Product[]>('/products', { params });
   },
 
   /**
    * Get a single product by ID
    */
-  getProductById: async (id: number): Promise<Product> => {
+  getProductById: async (id: string): Promise<Product> => {
     return apiService.get<Product>(`/products/${id}`);
   },
 
   /**
-   * Get all categories
+   * Create a new product (admin only)
    */
-  getCategories: async (): Promise<Category[]> => {
-    return apiService.get<Category[]>('/categories');
+  createProduct: async (productData: ProductCreate): Promise<Product> => {
+    return apiService.post<Product>('/products', productData);
+  },
+
+  /**
+   * Update a product (admin only)
+   */
+  updateProduct: async (id: string, productData: ProductUpdate): Promise<Product> => {
+    return apiService.put<Product>(`/products/${id}`, productData);
+  },
+
+  /**
+   * Delete a product (admin only)
+   */
+  deleteProduct: async (id: string): Promise<void> => {
+    return apiService.delete<void>(`/products/${id}`);
+  },
+
+  /**
+   * Get all categories with product counts
+   */
+  getCategories: async (skip: number = 0, limit: number = 100): Promise<CategoryWithProductsCount[]> => {
+    return apiService.get<CategoryWithProductsCount[]>('/categories', {
+      params: { skip, limit }
+    });
   },
 
   /**
    * Get a single category by ID
    */
-  getCategoryById: async (id: number): Promise<Category> => {
+  getCategoryById: async (id: string): Promise<Category> => {
     return apiService.get<Category>(`/categories/${id}`);
+  },
+
+  /**
+   * Create a new category (admin only)
+   */
+  createCategory: async (categoryData: CategoryCreate): Promise<Category> => {
+    return apiService.post<Category>('/categories', categoryData);
+  },
+
+  /**
+   * Update a category (admin only)
+   */
+  updateCategory: async (id: string, categoryData: CategoryUpdate): Promise<Category> => {
+    return apiService.put<Category>(`/categories/${id}`, categoryData);
+  },
+
+  /**
+   * Delete a category (admin only)
+   */
+  deleteCategory: async (id: string): Promise<void> => {
+    return apiService.delete<void>(`/categories/${id}`);
   },
 
   /**
    * Get products by category ID
    */
   getProductsByCategory: async (
-    categoryId: number,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<PaginatedResponse<Product>> => {
-    return apiService.get<PaginatedResponse<Product>>(
+    categoryId: string,
+    skip: number = 0,
+    limit: number = 100
+  ): Promise<Product[]> => {
+    return apiService.get<Product[]>(
       `/categories/${categoryId}/products`,
-      { params: { page, limit } }
+      { params: { skip, limit } }
     );
   },
 
   /**
    * Get reviews for a product
    */
-  getProductReviews: async (productId: number): Promise<Review[]> => {
-    return apiService.get<Review[]>(`/reviews/${productId}`);
+  getProductReviews: async (productId: string, skip: number = 0, limit: number = 100): Promise<ReviewWithUser[]> => {
+    return apiService.get<ReviewWithUser[]>(`/reviews/${productId}`, {
+      params: { skip, limit }
+    });
   },
 
   /**
    * Create a review for a product
    */
-  createReview: async (review: ReviewCreate): Promise<Review> => {
-    return apiService.post<Review>(`/reviews/${review.product_id}`, review);
+  createReview: async (productId: string, reviewData: ReviewCreate): Promise<ReviewWithUser> => {
+    return apiService.post<ReviewWithUser>(`/reviews/${productId}`, reviewData);
   },
 
   /**
    * Delete a review for a product
    */
-  deleteReview: async (productId: number): Promise<void> => {
+  deleteReview: async (productId: string): Promise<void> => {
     return apiService.delete<void>(`/reviews/${productId}`);
   },
 
   /**
    * Get user's favorite products
    */
-  getFavorites: async (): Promise<Favorite[]> => {
-    return apiService.get<Favorite[]>('/favorites');
+  getFavorites: async (): Promise<FavoritesList> => {
+    return apiService.get<FavoritesList>('/favorites');
   },
 
   /**
    * Add a product to favorites
    */
-  addToFavorites: async (productId: number): Promise<Favorite> => {
-    return apiService.post<Favorite>(`/favorites/${productId}`);
+  addToFavorites: async (productId: string): Promise<FavoriteWithProduct> => {
+    return apiService.post<FavoriteWithProduct>(`/favorites/${productId}`);
   },
 
   /**
    * Remove a product from favorites
    */
-  removeFromFavorites: async (productId: number): Promise<void> => {
+  removeFromFavorites: async (productId: string): Promise<void> => {
     return apiService.delete<void>(`/favorites/${productId}`);
   }
 }; 

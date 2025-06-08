@@ -1,5 +1,11 @@
 import { apiService } from './api';
-import type { Cart, CartItemCreate, Order, OrderCreate } from '../types/models';
+import type { 
+  Cart, 
+  CartItemCreate, 
+  CartItemUpdate, 
+  Order,
+  OrderUpdate
+} from '../types/models';
 
 export const cartService = {
   /**
@@ -19,18 +25,15 @@ export const cartService = {
   /**
    * Remove a product from the cart
    */
-  removeFromCart: async (productId: number): Promise<Cart> => {
-    return apiService.post<Cart>('/cart/remove', { product_id: productId });
+  removeFromCart: async (productId: string): Promise<Cart> => {
+    return apiService.post<Cart>(`/cart/remove?product_id=${productId}`);
   },
 
   /**
    * Update the quantity of a product in the cart
    */
-  updateCartItem: async (item: CartItemCreate): Promise<Cart> => {
-    // First remove the item
-    await apiService.post('/cart/remove', { product_id: item.product_id });
-    // Then add it with the new quantity
-    return apiService.post<Cart>('/cart/add', item);
+  updateCartItem: async (productId: string, update: CartItemUpdate): Promise<Cart> => {
+    return apiService.post<Cart>(`/cart/update?product_id=${productId}`, update);
   },
 
   /**
@@ -43,21 +46,30 @@ export const cartService = {
   /**
    * Create an order from the cart
    */
-  createOrder: async (orderData: OrderCreate): Promise<Order> => {
-    return apiService.post<Order>('/orders', orderData);
+  createOrder: async (): Promise<Order> => {
+    return apiService.post<Order>('/orders');
   },
 
   /**
    * Get all orders for the current user
    */
-  getOrders: async (): Promise<Order[]> => {
-    return apiService.get<Order[]>('/orders');
+  getOrders: async (skip: number = 0, limit: number = 100): Promise<Order[]> => {
+    return apiService.get<Order[]>('/orders', {
+      params: { skip, limit }
+    });
   },
 
   /**
    * Get a specific order by ID
    */
-  getOrderById: async (orderId: number): Promise<Order> => {
+  getOrderById: async (orderId: string): Promise<Order> => {
     return apiService.get<Order>(`/orders/${orderId}`);
+  },
+
+  /**
+   * Update order status (admin only)
+   */
+  updateOrder: async (orderId: string, orderData: OrderUpdate): Promise<Order> => {
+    return apiService.put<Order>(`/orders/${orderId}`, orderData);
   }
 }; 

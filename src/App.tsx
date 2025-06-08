@@ -16,6 +16,7 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { ProfilePage } from './pages/ProfilePage';
 import { FavoritesPage } from "./pages/FavoritesPage";
 import { OrdersPage } from "./pages/OrdersPage";
+import { OrderDetailPage } from "./pages/OrderDetailPage";
 import { CheckoutPage } from "./pages/CheckoutPage/CheckoutPage.tsx";
 import { AdminProductsPage, AdminCategoriesPage, AdminOrdersPage } from './pages/AdminPages';
 
@@ -50,6 +51,7 @@ function App() {
                   <Route path="cart" element={<CartPage />} />
                   <Route path="favorites" element={<FavoritesPage />} />
                   <Route path="orders" element={<OrdersPage />} />
+                  <Route path="orders/:id" element={<OrderDetailPage />} />
                   <Route path="checkout" element={<CheckoutPage />} />
                 </Route>
                 

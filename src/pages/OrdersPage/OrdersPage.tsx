@@ -1,49 +1,81 @@
+import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { mockOrders } from '../../data/mockData';
+import { cartService } from '../../services/cartService';
 import styles from './OrdersPage.module.css';
+import type { Order } from '../../types/models';
 
 export const OrdersPage = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // If not authenticated, redirect to login
+  // Если не авторизован, перенаправляем на страницу входа
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
   
-  if (isLoading || !user) {
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Используем cartService для получения заказов
+        const response = await cartService.getOrders();
+        setOrders(response);
+      } catch (err) {
+        console.error('Ошибка при загрузке заказов:', err);
+        setError('Не удалось загрузить историю заказов. Пожалуйста, попробуйте позже.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchOrders();
+  }, [user]);
+  
+  if (isAuthLoading || !user) {
+    return <div className={styles.loading}>Загрузка данных пользователя...</div>;
+  }
+  
+  if (isLoading) {
     return <div className={styles.loading}>Загрузка заказов...</div>;
   }
   
-  // Get user's orders from mock data
-  const userOrders = mockOrders.filter(order => order.user_id === user.id);
+  if (error) {
+    return <div className={styles.error}>{error}</div>;
+  }
   
-  // Format date to readable string
+  // Форматирование даты в читаемый вид
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU');
   };
   
-  // Convert order status to readable string
+  // Перевод статуса заказа на русский язык
   const getOrderStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
       'pending': 'В обработке',
-      'processing': 'Обрабатывается',
-      'shipping': 'Доставляется',
-      'delivered': 'Доставлен',
+      'paid': 'Оплачен',
+      'shipped': 'Отправлен',
+      'completed': 'Доставлен',
       'cancelled': 'Отменен'
     };
     
     return statusMap[status] || status;
   };
   
-  // Get status class for styling
+  // Получение класса для стилизации статуса
   const getStatusClass = (status: string) => {
     const statusClassMap: Record<string, string> = {
       'pending': styles.statusPending,
-      'processing': styles.statusProcessing,
-      'shipping': styles.statusShipping,
-      'delivered': styles.statusDelivered,
+      'paid': styles.statusPaid,
+      'shipped': styles.statusShipped,
+      'completed': styles.statusCompleted,
       'cancelled': styles.statusCancelled
     };
     
@@ -52,44 +84,42 @@ export const OrdersPage = () => {
   
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Мои заказы</h1>
+      <h1 className={styles.title}>История заказов</h1>
       
-      {userOrders.length > 0 ? (
+      {orders.length > 0 ? (
         <div className={styles.ordersList}>
-          {userOrders.map(order => (
+          {orders.map(order => (
             <div key={order.id} className={styles.orderCard}>
               <div className={styles.orderHeader}>
                 <div className={styles.orderInfo}>
-                  <span className={styles.orderNumber}>Заказ #{order.id}</span>
-                  <span className={styles.orderDate}>от {formatDate(order.created_at)}</span>
+                  <span className={styles.orderNumber}>Заказ #{order.id.substring(0, 8)}</span>
+                  <span className={styles.orderDate}>{formatDate(order.created_at)}</span>
                 </div>
-                
                 <div className={`${styles.orderStatus} ${getStatusClass(order.status)}`}>
                   {getOrderStatusLabel(order.status)}
                 </div>
               </div>
               
-              <div className={styles.orderItems}>
-                {order.items.map(item => (
+              <div className={styles.orderDetails}>
+                {order.items && order.items.map(item => (
                   <div key={item.id} className={styles.orderItem}>
-                    <Link to={`/products/${item.product_id}`} className={styles.itemImage}>
+                    <div className={styles.productInfo}>
                       <img 
-                        src={item.product.image_url || 'https://via.placeholder.com/80x80?text=No+Image'} 
-                        alt={item.product.name} 
+                        src={item.product.image_url || 'https://via.placeholder.com/50x50?text=No+Image'} 
+                        alt={item.product.title}
+                        className={styles.productImage}
                       />
-                    </Link>
-                    
-                    <div className={styles.itemDetails}>
-                      <Link to={`/products/${item.product_id}`} className={styles.itemName}>
-                        {item.product.name}
-                      </Link>
-                      <div className={styles.itemPrice}>
-                        {item.price.toLocaleString()} ₽ × {item.quantity} шт.
+                      <div className={styles.productDetails}>
+                        <Link to={`/products/${item.product_id}`} className={styles.productName}>
+                          {item.product.title}
+                        </Link>
+                        <span className={styles.productQuantity}>
+                          {item.quantity} шт. × {item.unit_price.toLocaleString()} ₽
+                        </span>
                       </div>
                     </div>
-                    
                     <div className={styles.itemTotal}>
-                      {(item.price * item.quantity).toLocaleString()} ₽
+                      {(item.quantity * item.unit_price).toLocaleString()} ₽
                     </div>
                   </div>
                 ))}
@@ -98,10 +128,10 @@ export const OrdersPage = () => {
               <div className={styles.orderFooter}>
                 <div className={styles.orderTotal}>
                   <span>Итого:</span>
-                  <span className={styles.totalPrice}>{order.total.toLocaleString()} ₽</span>
+                  <span className={styles.totalAmount}>{order.total_price.toLocaleString()} ₽</span>
                 </div>
                 
-                <Link to={`/orders/${order.id}`} className={styles.detailsButton}>
+                <Link to={`/orders/${order.id}`} className={styles.viewOrderButton}>
                   Подробнее
                 </Link>
               </div>
@@ -109,11 +139,8 @@ export const OrdersPage = () => {
           ))}
         </div>
       ) : (
-        <div className={styles.emptyState}>
-          <h2 className={styles.emptyTitle}>У вас пока нет заказов</h2>
-          <p className={styles.emptyDescription}>
-            После оформления заказа вы сможете отслеживать его статус здесь.
-          </p>
+        <div className={styles.noOrders}>
+          <p>У вас пока нет заказов</p>
           <Link to="/products" className={styles.shopButton}>
             Перейти к покупкам
           </Link>

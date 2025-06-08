@@ -78,7 +78,7 @@ export const RegisterPage = () => {
     
     try {
       await register(formData);
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       setSubmitError('Не удалось зарегистрироваться. Попробуйте другое имя пользователя или email.');
     }

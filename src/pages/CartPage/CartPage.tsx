@@ -2,37 +2,33 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/common/Button.tsx';
 import { useCart } from '../../contexts/CartContext.tsx';
-import { mockCart } from '../../data/mockData.ts';
 import styles from './CartPage.module.css';
 
 export const CartPage = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, isLoading } = useCart();
-  const [itemBeingUpdated, setItemBeingUpdated] = useState<number | null>(null);
-  const [itemBeingRemoved, setItemBeingRemoved] = useState<number | null>(null);
+  const [itemBeingUpdated, setItemBeingUpdated] = useState<string | null>(null);
+  const [itemBeingRemoved, setItemBeingRemoved] = useState<string | null>(null);
 
-  // Use mock data for now
-  const cartData = cart || mockCart;
-
-  const handleQuantityChange = async (productId: number, quantity: number) => {
+  const handleQuantityChange = async (productId: string, quantity: number) => {
     if (quantity < 1) return;
     
     setItemBeingUpdated(productId);
     try {
       await updateCartItem({ product_id: productId, quantity });
     } catch (error) {
-      console.error('Failed to update cart item:', error);
+      console.error('Ошибка при обновлении товара в корзине:', error);
     } finally {
       setItemBeingUpdated(null);
     }
   };
 
-  const handleRemoveItem = async (productId: number) => {
+  const handleRemoveItem = async (productId: string) => {
     setItemBeingRemoved(productId);
     try {
       await removeFromCart(productId);
     } catch (error) {
-      console.error('Failed to remove cart item:', error);
+      console.error('Ошибка при удалении товара из корзины:', error);
     } finally {
       setItemBeingRemoved(null);
     }
@@ -42,18 +38,18 @@ export const CartPage = () => {
     navigate('/checkout');
   };
 
-  if (isLoading && !cartData) {
+  if (isLoading && !cart) {
     return <div className={styles.loading}>Загрузка корзины...</div>;
   }
 
-  if (!cartData || cartData.items.length === 0) {
+  if (!cart || cart.items.length === 0) {
     return (
       <div className={styles.emptyCart}>
-        <h1 className={styles.title}>Ваша корзина пуста</h1>
-        <p>Добавьте товары в корзину чтобы совершить покупку.</p>
-        <Button onClick={() => navigate('/products')} variant="primary">
-          Перейти к каталогу
-        </Button>
+        <h2>Ваша корзина пуста</h2>
+        <p>Добавьте товары в корзину, чтобы оформить заказ</p>
+        <Link to="/products" className={styles.continueShoppingLink}>
+          Перейти к покупкам
+        </Link>
       </div>
     );
   }
@@ -62,90 +58,88 @@ export const CartPage = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Корзина</h1>
       
-      <div className={styles.cartGrid}>
+      <div className={styles.cartContent}>
         <div className={styles.cartItems}>
-          {cartData.items.map((item) => (
+          {cart.items.map(item => (
             <div key={item.id} className={styles.cartItem}>
-              <div className={styles.itemImage}>
+              <div className={styles.productImage}>
                 <img 
                   src={item.product.image_url || 'https://via.placeholder.com/100x100?text=No+Image'} 
-                  alt={item.product.name} 
+                  alt={item.product.title} 
                 />
               </div>
               
-              <div className={styles.itemDetails}>
-                <Link to={`/products/${item.product.id}`} className={styles.itemName}>
-                  {item.product.name}
+              <div className={styles.productInfo}>
+                <Link to={`/products/${item.product.id}`} className={styles.productName}>
+                  {item.product.title}
                 </Link>
-                <div className={styles.itemCategory}>{item.product.category.name}</div>
-                <div className={styles.itemPrice}>{item.product.price.toLocaleString()} ₽</div>
+                <div className={styles.productPrice}>
+                  {item.product.price.toLocaleString()} ₽
+                </div>
               </div>
               
-              <div className={styles.itemActions}>
-                <div className={styles.quantityControls}>
-                  <button 
-                    className={styles.quantityButton}
-                    onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1 || itemBeingUpdated === item.product.id}
-                  >
-                    -
-                  </button>
-                  <span className={styles.quantity}>
-                    {itemBeingUpdated === item.product.id ? '...' : item.quantity}
-                  </span>
-                  <button 
-                    className={styles.quantityButton}
-                    onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
-                    disabled={item.quantity >= item.product.stock || itemBeingUpdated === item.product.id}
-                  >
-                    +
-                  </button>
-                </div>
-                
+              <div className={styles.quantityControls}>
                 <button 
-                  className={styles.removeButton}
-                  onClick={() => handleRemoveItem(item.product.id)}
-                  disabled={itemBeingRemoved === item.product.id}
+                  className={styles.quantityButton}
+                  onClick={() => handleQuantityChange(item.product_id, Math.max(1, item.quantity - 1))}
+                  disabled={itemBeingUpdated === item.product_id || item.quantity <= 1}
                 >
-                  {itemBeingRemoved === item.product.id ? '...' : 'Удалить'}
+                  -
+                </button>
+                <span className={styles.quantity}>
+                  {itemBeingUpdated === item.product_id ? '...' : item.quantity}
+                </span>
+                <button 
+                  className={styles.quantityButton}
+                  onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)}
+                  disabled={itemBeingUpdated === item.product_id}
+                >
+                  +
                 </button>
               </div>
               
               <div className={styles.itemTotal}>
                 {(item.product.price * item.quantity).toLocaleString()} ₽
               </div>
+              
+              <button 
+                className={styles.removeButton}
+                onClick={() => handleRemoveItem(item.product_id)}
+                disabled={itemBeingRemoved === item.product_id}
+              >
+                {itemBeingRemoved === item.product_id ? '...' : '×'}
+              </button>
             </div>
           ))}
         </div>
         
-        <div className={styles.orderSummary}>
+        <div className={styles.cartSummary}>
           <h2 className={styles.summaryTitle}>Итого</h2>
           
           <div className={styles.summaryRow}>
-            <span>Товары ({cartData.items.reduce((sum, item) => sum + item.quantity, 0)} шт.):</span>
-            <span>{cartData.total.toLocaleString()} ₽</span>
+            <span>Товары ({cart.items.reduce((acc, item) => acc + item.quantity, 0)})</span>
+            <span>{cart.total_price.toLocaleString()} ₽</span>
           </div>
           
           <div className={styles.summaryRow}>
-            <span>Доставка:</span>
+            <span>Доставка</span>
             <span>Бесплатно</span>
           </div>
           
-          <div className={styles.totalRow}>
-            <span>Итого к оплате:</span>
-            <span className={styles.totalPrice}>{cartData.total.toLocaleString()} ₽</span>
+          <div className={styles.summaryTotal}>
+            <span>Итого</span>
+            <span>{cart.total_price.toLocaleString()} ₽</span>
           </div>
           
           <Button 
             variant="primary" 
-            fullWidth 
-            size="large"
-            onClick={handleCheckout}
+            onClick={handleCheckout} 
+            className={styles.checkoutButton}
           >
             Оформить заказ
           </Button>
           
-          <Link to="/products" className={styles.continueShopping}>
+          <Link to="/products" className={styles.continueShoppingLink}>
             Продолжить покупки
           </Link>
         </div>
