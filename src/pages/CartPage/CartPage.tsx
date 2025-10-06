@@ -62,39 +62,51 @@ export const CartPage = () => {
         <div className={styles.cartItems}>
           {cart.items.map(item => (
             <div key={item.id} className={styles.cartItem}>
-              <div className={styles.productImage}>
+              <div className={`${styles.itemImage} cart-item-image`}>
                 <img 
                   src={item.product.image_url || 'https://via.placeholder.com/100x100?text=No+Image'} 
                   alt={item.product.title} 
                 />
               </div>
               
-              <div className={styles.productInfo}>
-                <Link to={`/products/${item.product.id}`} className={styles.productName}>
+              <div className={styles.itemDetails}>
+                <Link to={`/products/${item.product.id}`} className={styles.itemName}>
                   {item.product.title}
                 </Link>
-                <div className={styles.productPrice}>
+                <div className={styles.itemCategory}>
+                  Электроника
+                </div>
+                <div className={styles.itemPrice}>
                   {item.product.price.toLocaleString()} ₽
                 </div>
               </div>
               
-              <div className={styles.quantityControls}>
+              <div className={styles.itemActions}>
+                <div className={styles.quantityControls}>
+                  <button 
+                    className={styles.quantityButton}
+                    onClick={() => handleQuantityChange(item.product_id, Math.max(1, item.quantity - 1))}
+                    disabled={itemBeingUpdated === item.product_id || item.quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span className={styles.quantity}>
+                    {itemBeingUpdated === item.product_id ? '...' : item.quantity}
+                  </span>
+                  <button 
+                    className={styles.quantityButton}
+                    onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)}
+                    disabled={itemBeingUpdated === item.product_id}
+                  >
+                    +
+                  </button>
+                </div>
                 <button 
-                  className={styles.quantityButton}
-                  onClick={() => handleQuantityChange(item.product_id, Math.max(1, item.quantity - 1))}
-                  disabled={itemBeingUpdated === item.product_id || item.quantity <= 1}
+                  className={styles.removeButton}
+                  onClick={() => handleRemoveItem(item.product_id)}
+                  disabled={itemBeingRemoved === item.product_id}
                 >
-                  -
-                </button>
-                <span className={styles.quantity}>
-                  {itemBeingUpdated === item.product_id ? '...' : item.quantity}
-                </span>
-                <button 
-                  className={styles.quantityButton}
-                  onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)}
-                  disabled={itemBeingUpdated === item.product_id}
-                >
-                  +
+                  {itemBeingRemoved === item.product_id ? 'Удаление...' : 'Удалить'}
                 </button>
               </div>
               

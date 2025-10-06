@@ -136,7 +136,7 @@ export const AdminProductsPage = () => {
       </div>
       
       <div className={styles.tableContainer}>
-        <table className={styles.table}>
+        <table className={`${styles.table} admin-table`}>
           <thead>
             <tr>
               <th>
@@ -171,7 +171,7 @@ export const AdminProductsPage = () => {
                   <img 
                     src={product.image_url || 'https://via.placeholder.com/50x50?text=No+Image'} 
                     alt={product.title}
-                    className={styles.productImage}
+                    className="admin-product-image"
                   />
                 </td>
                 <td>{product.title}</td>

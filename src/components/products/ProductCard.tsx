@@ -45,33 +45,33 @@ export const ProductCard = ({
   const isLowStock = product.stock <= 5;
 
   return (
-    <Link to={`/products/${product.id}`} className={styles.card}>
-      <div className={styles.imageContainer}>
+    <Link to={`/products/${product.id}`} className="product-card">
+      <div className="product-image-container">
         <img 
           src={product.image_url || 'https://via.placeholder.com/300x300?text=No+Image'} 
           alt={product.title} 
-          className={styles.image} 
+          className="product-image" 
         />
         {/* Категория не содержится в объекте продукта, поэтому временно скрываем */}
         {/* <span className={styles.category}>{product.category.name}</span> */}
       </div>
       
-      <div className={styles.content}>
-        <h3 className={styles.name}>{product.title}</h3>
-        <p className={styles.description}>{product.description}</p>
-        <div className={styles.price}>
+      <div className="product-content">
+        <h3 className="product-name">{product.title}</h3>
+        <p className="product-description">{product.description}</p>
+        <div className="product-price">
           {product.price.toLocaleString()} ₽
         </div>
         
-        <div className={styles.footer}>
-          <span className={classNames(styles.stock, { [styles.lowStock]: isLowStock })}>
+        <div className="product-footer">
+          <span className={classNames("product-stock", { "low-stock": isLowStock })}>
             {isLowStock ? `Осталось ${product.stock} шт.` : 'В наличии'}
           </span>
           
-          <div className={styles.actions}>
+          <div className="product-actions">
             {onToggleFavorite && (
               <button 
-                className={classNames(styles.actionButton, { [styles.favorite]: isFavorite })}
+                className={classNames("product-action-button", { "favorite": isFavorite })}
                 onClick={handleToggleFavorite}
                 aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
               >
@@ -80,7 +80,7 @@ export const ProductCard = ({
             )}
             
             <button 
-              className={styles.actionButton} 
+              className="product-action-button" 
               onClick={handleAddToCart}
               disabled={isAddingToCart || product.stock === 0}
               aria-label="Добавить в корзину"

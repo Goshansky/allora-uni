@@ -17,8 +17,8 @@ export const ProductGrid = ({
 
   if (products.length === 0) {
     return (
-      <div className={styles.grid}>
-        <div className={styles.noProducts}>
+      <div className="products-grid">
+        <div className="no-products">
           Товары не найдены
         </div>
       </div>
@@ -26,7 +26,7 @@ export const ProductGrid = ({
   }
 
   return (
-    <div className={styles.grid}>
+    <div className="products-grid">
       {products.map((product) => (
         <ProductCard
           key={product.id}
